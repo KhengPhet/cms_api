@@ -1,0 +1,92 @@
+npm install express cors helmet morgan dotenv express-rate-limit express-validator jsonwebtoken bcryptjs multer sharp pg uuid nodemon
+
+================ tb users ==============
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role VARCHAR(20) CHECK (role IN ('admin','editor','author')) DEFAULT 'author',
+	  thumbnail text not null,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+==================== tb category =============
+CREATE TABLE categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(150) UNIQUE NOT NULL,
+  description TEXT,
+  count INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+=================== tb author =================
+CREATE TABLE authors (
+  id SERIAL PRIMARY KEY,
+  user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  Biography TEXT,
+  posts INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+================== tb add new post ======================
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE,
+  body TEXT,
+  excerpt TEXT,
+  status VARCHAR(20) DEFAULT 'Draft' CHECK (status IN ('Draft','Published')),
+  category_id INT REFERENCES categories(id) ON DELETE SET NULL,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  thumbnail TEXT NOT NULL,
+  type VARCHAR(20) CHECK (type IN ('international','national')),
+  views INT DEFAULT 0,
+  comment_count INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE post_tags (
+  post_id INT REFERENCES posts(id) ON DELETE CASCADE,
+  tag_id INT REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+CREATE TABLE post_images (
+  id SERIAL PRIMARY KEY,
+  post_id INT REFERENCES posts(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  alt TEXT,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+=============== tb comments ==============
+CREATE TABLE comments (
+  id SERIAL PRIMARY KEY,
+  comment TEXT NOT NULL,
+  post_id INT REFERENCES posts(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(20) DEFAULT 'Approved' CHECK (status IN ('Pending','Approved')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE replies (
+  id SERIAL PRIMARY KEY,
+  reply TEXT NOT NULL,
+  comment_id INT REFERENCES comments(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
