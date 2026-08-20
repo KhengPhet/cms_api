@@ -20,8 +20,15 @@ const app = express();
 
 const PORT = process.env.PORT || 5001;
 
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map(o => o.trim())
+  : ["http://localhost:5173", "http://localhost:3000"];
+
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -43,10 +50,15 @@ app.use("/api/authors", authorRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 
+// health check
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 // error handler
 app.use(errorHandler);
 
 // server
 app.listen(PORT, () => {
-    console.log(`http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
