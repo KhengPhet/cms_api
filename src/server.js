@@ -20,17 +20,16 @@ const app = express();
 
 const PORT = process.env.PORT || 5001;
 
-// CORS — parse comma-separated origins, allow Railway domains by default
+// CORS — parse comma-separated origins, allow Vercel/Railway/localhost
 const envOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",").map(o => o.trim())
   : [];
 
 const allowedOrigins = [
   ...envOrigins,
-  // "http://localhost:5173",
-  // "http://localhost:3000",
-  "https://cms-frontend-tgji.vercel.app/",
-  // "http://localhost:4173",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:4173",
 ];
 
 const corsOptions = {
@@ -38,10 +37,13 @@ const corsOptions = {
     // Allow requests with no origin (Postman, curl, server-to-server)
     if (!origin) return callback(null, true);
 
+    // Allow any *.vercel.app domain (preview deploys get unique subdomains)
+    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+
     // Allow any *.up.railway.app domain
     if (/\.up\.railway\.app$/.test(origin)) return callback(null, true);
 
-    // Allow configured origins
+    // Allow configured origins (localhost, env overrides)
     if (allowedOrigins.includes(origin)) return callback(null, true);
 
     callback(new Error(`CORS blocked for origin: ${origin}`));
