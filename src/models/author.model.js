@@ -90,6 +90,7 @@ const Author = {
     return result.rows[0];
   },
   async delete(user_id) {
+    await conn.query("DELETE FROM authors WHERE user_id = $1", [user_id]);
     await conn.query("DELETE FROM users WHERE id = $1", [user_id]);
   },
 };
