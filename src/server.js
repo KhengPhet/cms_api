@@ -27,7 +27,7 @@ const envOrigins = process.env.CORS_ORIGIN
 
 const allowedOrigins = [
   ...envOrigins,
-  "http://localhost:5173",
+  // "http://localhost:5173",
   // "http://localhost:3000",
   "https://cms-frontend-tgji.vercel.app/",
   // "http://localhost:4173",
