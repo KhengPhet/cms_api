@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAuthors,
+  getAuthorById,
   createAuthor,
   updateAuthor,
   deleteAuthor,
@@ -11,6 +12,7 @@ import authMiddleware from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.get("/", getAuthors);
+router.get("/:id", getAuthorById);
 router.post("/", authMiddleware, upload.single("thumbnail"), createAuthor);
 router.put("/:id", authMiddleware, upload.single("thumbnail"), updateAuthor);
 router.delete("/:id", authMiddleware, deleteAuthor);

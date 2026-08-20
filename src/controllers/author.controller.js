@@ -11,6 +11,18 @@ export const getAuthors = async (req, res) => {
   }
 };
 
+export const getAuthorById = async (req, res) => {
+  try {
+    const data = await Author.getById(req.params.id);
+    if (!data) {
+      return res.status(404).json({ message: "Author not found" });
+    }
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const createAuthor = async (req, res) => {
   try {
     const { name, email, role } = req.body;

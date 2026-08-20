@@ -3,7 +3,11 @@ import conn from "../config/db.js"
 
 // get all
 export const getAll = async () => {
-    const result = await conn.query("select * from categories order by id desc");
+    const result = await conn.query(`
+        SELECT c.*, (SELECT COUNT(*) FROM posts WHERE category_id = c.id) AS count
+        FROM categories c
+        ORDER BY c.id DESC
+    `);
     return result.rows;
 }
 

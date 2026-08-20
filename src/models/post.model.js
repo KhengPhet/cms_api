@@ -60,7 +60,7 @@ const Post = {
     }
   },
 
-  // GET ALL (with comment count)
+  // GET ALL (with comment count, admin - all statuses)
   async getAll() {
     const result = await conn.query(
       `SELECT 
@@ -92,6 +92,45 @@ const Post = {
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
+      ORDER BY p.id DESC`
+    );
+
+    return result.rows;
+  },
+
+  // GET PUBLISHED ONLY (public-facing)
+  async getPublished() {
+    const result = await conn.query(
+      `SELECT 
+        p.*,
+        u.name AS author_name,
+        u.thumbnail AS author_thumbnail,
+        c.name AS category_name,
+        (
+        SELECT COUNT(*) 
+        FROM comments cm
+        WHERE cm.post_id = p.id AND cm.status = 'Approved'
+      )
+      +
+      (
+        SELECT COUNT(*) 
+        FROM replies r
+        WHERE r.comment_id IN (
+          SELECT id FROM comments WHERE post_id = p.id
+        )
+      ) AS comment_count,
+        COALESCE(
+          (SELECT json_agg(t.name)
+           FROM post_tags pt
+           JOIN tags t ON pt.tag_id = t.id
+           WHERE pt.post_id = p.id),
+          '[]'::json
+        ) AS tags
+
+      FROM posts p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.status = 'Published'
       ORDER BY p.id DESC`
     );
 

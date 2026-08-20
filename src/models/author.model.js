@@ -10,10 +10,11 @@ const Author = {
         u.role,
         u.thumbnail,
         a.biography,
-        u.post_count AS posts,
+        (SELECT COUNT(*) FROM posts WHERE user_id = u.id) AS posts,
         u.created_at
       FROM users u
       LEFT JOIN authors a ON u.id = a.user_id
+      WHERE u.role IN ('author', 'admin')
     `);
 
     return result.rows;
@@ -29,7 +30,7 @@ const Author = {
         u.role,
         u.thumbnail,
         a.biography,
-        u.post_count AS posts,
+        (SELECT COUNT(*) FROM posts WHERE user_id = u.id) AS posts,
         u.created_at
       FROM users u
       LEFT JOIN authors a ON u.id = a.user_id
