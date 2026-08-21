@@ -18,7 +18,12 @@ dotenv.config();
 
 const app = express();
 
+// Railway/Vercel run the app behind a reverse proxy — trust X-Forwarded-* headers
+// so req.ip and express-rate-limit work correctly.
+app.set("trust proxy", 1);
+
 const PORT = process.env.PORT || 8080;
+const HOST = "0.0.0.0"; // bind all interfaces (required on Railway)
 
 // CORS — parse comma-separated origins, allow Vercel/Railway/localhost
 const envOrigins = process.env.CORS_ORIGIN
@@ -83,6 +88,15 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// root — quick browser check that the API is alive
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "etec_cms_api",
+    endpoints: ["/health", "/api/posts", "/api/categories", "/api/authors"]
+  });
+});
+
 // debug endpoint — shows DB connection status (remove in production if desired)
 app.get("/api/debug", async (req, res) => {
   try {
@@ -106,9 +120,9 @@ app.get("/api/debug", async (req, res) => {
 // error handler
 app.use(errorHandler);
 
-// server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// server — bind 0.0.0.0 so Railway's proxy can reach the app
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
     console.log(`CORS origins: ${allowedOrigins.join(", ")}`);
     console.log(`DATABASE_URL: ${process.env.DATABASE_URL ? "SET (Railway)" : "NOT SET (using local vars)"}`);
 });

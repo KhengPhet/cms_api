@@ -6,10 +6,12 @@ dotenv.config();
 let conn;
 
 if (process.env.DATABASE_URL) {
-  // Railway / any PaaS — full connection string with SSL
+  // Railway / any PaaS — full connection string.
+  // SSL is required by Railway but must be OFF for plain-local Postgres URLs.
+  const isLocal = /@localhost[:/]|@127\.0\.0\.1[:/]|\@host\.docker\.internal/.test(process.env.DATABASE_URL);
   conn = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: isLocal ? false : { rejectUnauthorized: false }
   });
 } else {
   // Local development — individual env vars
