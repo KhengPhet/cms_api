@@ -72,7 +72,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/categories", category);
 app.use("/api/authors", authorRoutes);
+// app.use("/api/posts", postRoutes);
+console.log("Loading post routes...");
 app.use("/api/posts", postRoutes);
+console.log("Post routes loaded successfully");
 app.use("/api/comments", commentRoutes);
 
 // health check — test this first when debugging
